@@ -38,7 +38,7 @@ pipeline {
 
     environment {
         AWS_DEFAULT_REGION = 'us-east-1'
-        ECR_URL = "${params.AWS_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        ECR_URL = "${params.AWS_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
     }
 
     stages {
