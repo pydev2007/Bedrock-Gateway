@@ -75,7 +75,7 @@ pipeline {
                 withVault([configuration: configuration, vaultSecrets: jenkins_secrets]) {
 
                     sh """
-                        aws ecr get-login-password --region ${AWS_REGION} \
+                        aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
                         | docker login --username AWS --password-stdin ${ECR_URL}
                     """
 
@@ -83,10 +83,10 @@ pipeline {
                     sh """
                         aws ecr describe-repositories \
                         --repository-names ${params.REPO_NAME} \
-                        --region ${AWS_REGION} \
+                        --region ${AWS_DEFAULT_REGION} \
                         || aws ecr create-repository \
                         --repository-name ${params.REPO_NAME} \
-                        --region ${AWS_REGION}
+                        --region ${AWS_DEFAULT_REGION}
                     """
 
                     sh """
@@ -107,7 +107,7 @@ pipeline {
                         withVault([configuration: configuration, vaultSecrets: jenkins_secrets]) {
 
                             sh """
-                                aws ecr get-login-password --region ${AWS_REGION} \
+                                aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
                                 | docker login --username AWS --password-stdin ${ECR_URL}
                             """
 
