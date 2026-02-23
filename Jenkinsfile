@@ -20,6 +20,7 @@ def jenkins_secrets = [
   ]
 ]
 
+
 def configuration = [
   vaultUrl: 'http://192.168.86.246:8200',
   vaultCredentialId: 'vault-jenkins-role',
@@ -36,7 +37,7 @@ pipeline {
     }
 
     environment {
-        AWS_REGION = 'us-east-1'
+        AWS_DEFAULT_REGION = 'us-east-1'
         ECR_URL = "${params.AWS_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
     }
 
@@ -113,9 +114,28 @@ pipeline {
                             sh """
                                 aws ecr delete-repository \
                                 --repository-name ${params.REPO_NAME} \
-                                --region ${AWS_REGION} \
+                                --region ${AWS_DEFAULT_REGION} \
                                 --force
                             """
+                        }
+                    } catch (err) {
+                        echo "Repository may not exist: ${err.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                expression { return params.TEARDOWN == false }
+            }
+            steps {
+                script {
+                    try {
+                        withVault([configuration: configuration, vaultSecrets: jenkins_secrets]) {
+
+                            sh "docker build -t tfdev:latest --build-arg TERRAFORM_VERSION=1.13.5 ."
+                            sh """docker run --rm -it   -e AWS_ACCESS_KEY_ID   -e AWS_SECRET_ACCESS_KEY   -e AWS_DEFAULT_REGION   -v "$(pwd)":/home/ci   -w /home/ci   tfdev:latest"""
                         }
                     } catch (err) {
                         echo "Repository may not exist: ${err.getMessage()}"
