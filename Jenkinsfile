@@ -139,9 +139,10 @@ pipeline {
                         -e AWS_DEFAULT_REGION \
                         -v "$PWD":/workspace \
                         -w /workspace \
-                        tfdev:latest \
-                        /bin/sh -c "terraform init && terraform apply -auto-approve"
+                        tfdev:latest
                         '''
+                        sh "pwd"
+                        sh "terraform init"
                     }
                 }
             }
