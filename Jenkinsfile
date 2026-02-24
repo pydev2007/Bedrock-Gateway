@@ -131,20 +131,17 @@ pipeline {
             }
             steps {
                 script {
-                    try {
-                        withVault([configuration: configuration, vaultSecrets: jenkins_secrets]) {
-
-                            sh "docker build -t tfdev:latest --build-arg TERRAFORM_VERSION=1.13.5 ."
-                            sh 'docker run --rm -it \
-                            -e AWS_ACCESS_KEY_ID \
-                            -e AWS_SECRET_ACCESS_KEY \
-                            -e AWS_DEFAULT_REGION \
-                            -v "$(pwd)":/home/ci \
-                            -w /home/ci \
-                            tfdev:latest'
-                        }
-                    } catch (err) {
-                        echo "Repository may not exist: ${err.getMessage()}"
+                    withVault([configuration: configuration, vaultSecrets: jenkins_secrets]) {
+                    sh """
+                    docker run --rm \
+                    -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+                    -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+                    -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION \
+                    -v ${pwd()}:/workspace \
+                    -w /workspace \
+                    tfdev:latest \
+                    sh -c "terraform init && terraform apply -auto-approve"
+                    """
                     }
                 }
             }
