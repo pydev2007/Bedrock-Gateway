@@ -34,6 +34,7 @@ pipeline {
         booleanParam(name: 'TEARDOWN', defaultValue: false, description: 'Destroy ECR repository instead of building')
         string(name: 'REPO_NAME', defaultValue: 'bedrock-gateway', description: 'ECR repository name')
         string(name: 'AWS_ID', defaultValue: '107456217315', description: 'AWS Account ID')
+        string(name: 'KEY_ARN', description: 'ARN for bedrock key in Secrets Manager')
     }
 
     environment {
@@ -133,7 +134,8 @@ pipeline {
                 script {
                     withVault([configuration: configuration, vaultSecrets: jenkins_secrets]) {
                         docker.image('tfdev:latest').inside {
-                        sh 'ls'
+                        sh 'terraform init'
+                        sh """terraform apply -var "ECR_URI=${ECR_URL}/${params.REPO_NAME}:latest" -var "KEY_ARN=${test}" -auto-approve"""
                     }
                     }
                 }
