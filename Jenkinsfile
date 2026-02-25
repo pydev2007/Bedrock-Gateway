@@ -132,17 +132,9 @@ pipeline {
             steps {
                 script {
                     withVault([configuration: configuration, vaultSecrets: jenkins_secrets]) {
-                        sh '''
-                        docker run --rm \
-                        -e AWS_ACCESS_KEY_ID \
-                        -e AWS_SECRET_ACCESS_KEY \
-                        -e AWS_DEFAULT_REGION \
-                        -v "$PWD":/workspace \
-                        -w /workspace \
-                        tfdev:latest
-                        '''
-                        sh "pwd"
-                        sh "terraform init"
+                        docker.image('your-docker-image:tag').inside {
+                        sh 'ls'
+                    }
                     }
                 }
             }
