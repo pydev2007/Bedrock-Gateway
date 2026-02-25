@@ -151,7 +151,6 @@ pipeline {
                         docker.image('tfdev:latest').inside {
                             sh 'terraform init'
                             sh """terraform destroy \
-                                -var "ECR_URI=${ECR_URL}/${params.REPO_NAME}:latest" \
                                 -var "KEY_ARN=${params.KEY_ARN}" \
                                 -auto-approve"""
                         }
