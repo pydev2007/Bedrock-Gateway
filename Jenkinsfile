@@ -20,7 +20,6 @@ def jenkins_secrets = [
   ]
 ]
 
-
 def configuration = [
   vaultUrl: 'http://192.168.86.246:8200',
   vaultCredentialId: 'vault-jenkins-role',
@@ -132,7 +131,7 @@ pipeline {
             }
             steps {
                 script {
-                    withVault([configuration: configuration, vaultSecrets: jenkins_secrets]) {
+                    withVault([configuration: configuration, vaultSecrets: terraform_secrets]) {
                         docker.image('tfdev:latest').inside {
                         sh 'terraform init'
                         sh """terraform apply -var "ECR_URI=${ECR_URL}/${params.REPO_NAME}:latest" -var "KEY_ARN=${params.KEY_ARN}" -auto-approve"""
