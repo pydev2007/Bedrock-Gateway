@@ -135,7 +135,7 @@ pipeline {
                     withVault([configuration: configuration, vaultSecrets: jenkins_secrets]) {
                         docker.image('tfdev:latest').inside {
                         sh 'terraform init'
-                        sh """terraform apply -var "ECR_URI=${ECR_URL}/${params.REPO_NAME}:latest" -var "KEY_ARN=${test}" -auto-approve"""
+                        sh """terraform apply -var "ECR_URI=${ECR_URL}/${params.REPO_NAME}:latest" -var "KEY_ARN=${params.KEY_ARN}" -auto-approve"""
                     }
                     }
                 }
