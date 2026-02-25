@@ -132,7 +132,7 @@ pipeline {
             steps {
                 script {
                     withVault([configuration: configuration, vaultSecrets: jenkins_secrets]) {
-                        docker.image('your-docker-image:tag').inside {
+                        docker.image('tfdev:latest').inside {
                         sh 'ls'
                     }
                     }
