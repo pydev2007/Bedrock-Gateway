@@ -1,13 +1,8 @@
 resource "aws_s3_bucket" "tf_state" {
   bucket = "open-webui"
-
+  region = "us-east-1"
   lifecycle {
     prevent_destroy = true
-  }
-
-  tags = {
-    Name        = "Terraform State"
-    Environment = "Global"
   }
 }
 
