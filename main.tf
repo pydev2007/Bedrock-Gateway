@@ -32,6 +32,10 @@ module "apiGateway" {
   source = "./modules/apiGateway"
 }
 
+module "s3" {
+  source = "./modules/s3"
+}
+
 resource "aws_apigatewayv2_integration" "example" {
   api_id           = module.apiGateway.api_id
   integration_type = "AWS_PROXY"
