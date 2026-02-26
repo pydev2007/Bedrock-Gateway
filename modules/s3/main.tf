@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "tf_state" {
-  bucket = "open-webui"
+  bucket = "gavin-open-webui-12345"
   region = "us-east-1"
   lifecycle {
     prevent_destroy = true
