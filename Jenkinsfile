@@ -152,6 +152,7 @@ pipeline {
                             sh 'terraform init'
                             sh """terraform destroy \
                                 -var "KEY_ARN=${params.KEY_ARN}" \
+                                -var "ECR_URI=${ECR_URL}/${params.REPO_NAME}:latest" \
                                 -auto-approve"""
                         }
                     }
