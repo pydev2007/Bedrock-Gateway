@@ -1,5 +1,5 @@
 variable "ECR_URI" {
-  description = ""
+  description = "URI to the ECR container image."
   type        = string
 }
 

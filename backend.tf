@@ -1,3 +1,4 @@
+# Store statefile in S3 for teardown.
 terraform {
     backend "s3" {
     bucket       = "gavin-open-webui-12345"

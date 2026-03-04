@@ -1,3 +1,6 @@
+// Grab credentials from local vault 
+
+// Terraform credentials with access to Lambda, Secrets Manager, API Gateway, and ECR pulling 
 def terraform_secrets = [
   [
     path: 'secrets/creds/gavin_terraform_aws',
@@ -9,6 +12,7 @@ def terraform_secrets = [
   ]
 ]
 
+// Jenkins credentials with ECR pushing permsissions
 def jenkins_secrets = [
   [
     path: 'secrets/creds/Jenkins_AWS',
@@ -42,19 +46,18 @@ pipeline {
     }
 
     stages {
-
+        // Build and push image to ECR
         stage('Build') {
             when {
                 expression { return params.TEARDOWN == false }
             }
             steps {
                 sh 'git clone https://github.com/aws-samples/bedrock-access-gateway.git'
-
                 sh """
                     cd bedrock-access-gateway/src/
-                    docker build -f Dockerfile -t ${params.REPO_NAME}:latest .
-                """
-
+                    docker build -f Dockerfile -t ${params.REPO_NAME}:latest . 
+                """ 
+                // Get image ID for image removal
                 script {
                     def imageId = sh(
                         script: "docker images --filter reference=${params.REPO_NAME}:latest --quiet --no-trunc",
@@ -73,12 +76,10 @@ pipeline {
             }
             steps {
                 withVault([configuration: configuration, vaultSecrets: jenkins_secrets]) {
-
                     sh """
                         aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
                         | docker login --username AWS --password-stdin ${ECR_URL}
                     """
-
                     // Create repo if it doesn't exist
                     sh """
                         aws ecr describe-repositories \
@@ -88,7 +89,6 @@ pipeline {
                         --repository-name ${params.REPO_NAME} \
                         --region ${AWS_DEFAULT_REGION}
                     """
-
                     sh """
                         docker tag ${params.REPO_NAME}:latest ${ECR_URL}/${params.REPO_NAME}:latest
                         docker push ${ECR_URL}/${params.REPO_NAME}:latest
@@ -105,12 +105,10 @@ pipeline {
                 script {
                     try {
                         withVault([configuration: configuration, vaultSecrets: jenkins_secrets]) {
-
                             sh """
                                 aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
                                 | docker login --username AWS --password-stdin ${ECR_URL}
                             """
-
                             sh """
                                 aws ecr delete-repository \
                                 --repository-name ${params.REPO_NAME} \
@@ -132,6 +130,8 @@ pipeline {
             steps {
                 script {
                     withVault([configuration: configuration, vaultSecrets: terraform_secrets]) {
+                        // Run dockerfile image in repo
+                        // NOTE: build docker file on system before running
                         docker.image('tfdev:latest').inside {
                         sh 'terraform init'
                         sh """terraform apply -var "ECR_URI=${ECR_URL}/${params.REPO_NAME}:latest" -var "KEY_ARN=${params.KEY_ARN}" -auto-approve"""
@@ -149,6 +149,7 @@ pipeline {
                 script {
                     withVault([configuration: configuration, vaultSecrets: terraform_secrets]) {
                         docker.image('tfdev:latest').inside {
+                            // Pulls S3 tfstate file on init
                             sh 'terraform init'
                             sh """terraform destroy \
                                 -var "KEY_ARN=${params.KEY_ARN}" \
@@ -166,14 +167,18 @@ pipeline {
     post {
         always {
             script {
-                try {
-                    if (env.IMAGE_ID) {
-                        sh "docker image rm ${env.IMAGE_ID} || true"
+                if (params.TEARDOWN == false) {
+                    try {
+                        if (env.IMAGE_ID) {
+                            sh "docker image rm ${env.IMAGE_ID} --force || true"
+                        }
+                    } catch (err) {
+                        echo "Image removal failed. Image probably doesn't exist: ${err.getMessage()}"
+                    } finally {
+                        cleanWs()
                     }
-                } catch (err) {
-                    echo "Image cleanup failed: ${err.getMessage()}"
-                } finally {
-                    cleanWs()
+                } else {
+                    echo "Skipping cleanup"
                 }
             }
         }

@@ -1,13 +1,20 @@
+# Basic Lambda structure for Bedrock
+
+# Permissions for Bedrock and Secrets access
 data "aws_iam_policy_document" "bedrock_access" {
   statement {
     effect = "Allow"
 
     actions = [
+      # Bedrock API key for BAG Auth. Referenced here https://github.com/aws-samples/bedrock-access-gateway/blob/main/src/api/auth.py
       "secretsmanager:GetSecretValue",
 
+      # Logs permissions for Cloudwatch
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
+
+      # Bedrock model permissions 
       "bedrock:InvokeModel",
       "bedrock:InvokeModelWithResponseStream",
       "bedrock:InvokeAgent",
@@ -18,6 +25,7 @@ data "aws_iam_policy_document" "bedrock_access" {
   }
 }
 
+# Apply permissions to policy
 resource "aws_iam_policy" "bedrock_access_policy" {
   name        = "bedrock_access_policy"
   policy = data.aws_iam_policy_document.bedrock_access.json
