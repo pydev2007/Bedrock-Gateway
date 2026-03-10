@@ -1,3 +1,46 @@
+# Open WebUI with Bedrock
+
+Integrate AWS Bedrock with Open WebUI for AI model testing and development.
+
+## Overview
+This project automates the build and run process of [Bedrock Access Gateway](https://github.com/aws-samples/bedrock-access-gateway/tree/main) in AWS.
+
+### Jenkins:
+- Builds and pushes the  container to AWS ECR.
+- Runs a Docker container to apply Terraform and deploy.
+- Cleans up workspace and destroys.
+- Runs Terraform destroy when prompted to with a parameter.
+
+### Terraform:
+- Creates roles for services (API Gateway, Lambda, etc).
+- Builds and deploys services.
+- Connects services together.
+- Destroys services when prompted to (Excluding S3 and Secrets Manager).
+
+## Architecture
+A Jenkins controller runs on a dedicated machine, retrieves secrets from HashiCorp Vault on a seperate machine, and dispatches build jobs to a local agent.
+
+![Graph layout](Diagram.drawio.svg)
+
+## Prerequisites
+- A bedrock API key must be generated and put into Secrets Manager. Bedrock Access Gateway utilizes the key for API user authorization.
+- User IAM roles for Jenkins and Terraform with permissions for their respective roles.
+- IAM user credentials stored in Vault. 
+- TFdev Docker image built on agent machine.
+
+## Tools Used
+- Jenkins
+- Terraform
+- Hashicorp Vault
+- AWS
+    - ECR
+    - Secrets Manager
+    - Lambda
+    - Bedrock
+    - API Gateway
+    - IAM roles and users
+- Docker
+
 ## Requirements
 
 | Name | Version |
