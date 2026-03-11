@@ -1,5 +1,5 @@
 // Grab credentials from local vault 
-@Library("shared-library@jenkins-shared-library") _
+@Library("shared-library@vault-shared-library") _
 
 // Terraform credentials with access to Lambda, Secrets Manager, API Gateway, and ECR pulling 
 def terraform_secrets = [
