@@ -1,4 +1,5 @@
 // Grab credentials from local vault 
+@Library("shared-library@jenkins-shared-library") _
 
 // Terraform credentials with access to Lambda, Secrets Manager, API Gateway, and ECR pulling 
 def terraform_secrets = [
@@ -24,11 +25,7 @@ def jenkins_secrets = [
   ]
 ]
 
-def configuration = [
-  vaultUrl: 'http://192.168.86.246:8200',
-  vaultCredentialId: 'vault-jenkins-role',
-  engineVersion: 1
-]
+def configuration = vaultConfig()
 
 pipeline {
     agent { label 'GavinWSL' }
