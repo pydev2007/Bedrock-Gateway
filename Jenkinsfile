@@ -1,6 +1,7 @@
-// Grab credentials from local vault 
+// Get Vault config from shared library
 @Library("shared-library@vault-shared-library") _
 
+// Grab credentials from local vault 
 // Terraform credentials with access to Lambda, Secrets Manager, API Gateway, and ECR pulling 
 def terraform_secrets = [
   [
@@ -29,6 +30,11 @@ def configuration = vaultConfig()
 
 pipeline {
     agent { label 'GavinWSL' }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        disableConcurrentBuilds()
+    }
 
     parameters {
         booleanParam(name: 'TEARDOWN', defaultValue: false, description: 'Destroy ECR repository instead of building')

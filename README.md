@@ -6,10 +6,11 @@ Integrate AWS Bedrock with Open WebUI for AI model testing and development.
 This project automates the build and run process of [Bedrock Access Gateway](https://github.com/aws-samples/bedrock-access-gateway/tree/main) in AWS.
 
 ### Jenkins:
+- Gets Vault config from a shared library.
 - Builds and pushes the  container to AWS ECR.
 - Runs a Docker container to apply Terraform and deploy.
 - Cleans up workspace and destroys.
-- Runs Terraform destroy when prompted to with a parameter.
+- Runs Terraform destroy when prompted to with a parameter
 
 ### Terraform:
 - Creates roles for services (API Gateway, Lambda, etc).
